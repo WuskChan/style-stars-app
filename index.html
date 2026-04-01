@@ -380,4 +380,199 @@
         }
 
         .avatar-option:hover {
-            transform: scale(1.1
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .avatar-option.selected {
+            border-color: #FFD700;
+            background: rgba(255,215,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .avatar-wrapper { width: 150px; height: 150px; }
+            .avatar-image { font-size: 70px; }
+            .user-name { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header glass-premium">
+            <div class="logo">✨ STYLE STARS</div>
+            <div class="rank-badge" id="rankBadge">🌱 НОВИЧОК</div>
+        </div>
+
+        <div class="profile-section">
+            <div class="avatar-card glass-premium">
+                <div class="avatar-wrapper">
+                    <div class="avatar-image" id="avatarImage" onclick="openAvatarSelector()">🧑</div>
+                </div>
+                <div class="user-name" id="username">Загрузка...</div>
+                <div class="user-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalSpent">0</div>
+                        <div class="stat-label">ЗВЁЗД</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="giftsCount">0</div>
+                        <div class="stat-label">ПОДАРКОВ</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" style="margin-top: 25px;" onclick="openAvatarSelector()">🎨 СМЕНИТЬ АВАТАР</button>
+            </div>
+
+            <div class="gift-card glass-premium">
+                <div class="gift-title">📌 ЗАКРЕПЛЁННЫЙ ПОДАРОК</div>
+                <div id="pinnedGiftContainer">
+                    <div class="gift-empty" onclick="selectGift()">✨ НАЖМИ, ЧТОБЫ ПРИКРЕПИТЬ ✨</div>
+                </div>
+                <button class="btn btn-secondary" style="margin-top: 20px;" onclick="selectGift()">🎁 ВЫБРАТЬ ПОДАРОК</button>
+            </div>
+        </div>
+
+        <div class="rating-section glass-premium">
+            <div class="rating-title">🏆 ТОП ИГРОКОВ</div>
+            <div class="rating-list" id="ratingList">
+                <div class="rating-item"><div class="rating-place">🥇</div><div class="rating-avatar">👑</div><div class="rating-name">Загрузка...</div><div class="rating-stars">0⭐</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="avatarModal" class="modal">
+        <div class="modal-content glass-premium">
+            <div class="gift-title">✨ ВЫБЕРИ СТИЛЬ</div>
+            <div class="avatars-grid" id="avatarsGrid"></div>
+            <button class="btn btn-secondary" style="margin-top: 25px;" onclick="closeAvatarModal()">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram?.WebApp || { 
+            initDataUnsafe: { user: { id: null, first_name: 'СТИЛЯГА' } }, 
+            close: () => {}, 
+            expand: () => {}, 
+            sendData: () => {}, 
+            HapticFeedback: { impactOccurred: () => {} } 
+        };
+        tg.expand();
+
+        const AVATARS = ['🧑', '👩', '🦸', '🦹', '🐱', '🐶', '🦊', '🐼', '👨‍🎤', '👩‍🎤', '👑', '⭐', '🔥', '💎', '🌈', '🦄'];
+
+        let userData = {
+            id: tg.initDataUnsafe?.user?.id || 123,
+            name: tg.initDataUnsafe?.user?.first_name || 'СТИЛЯГА',
+            avatar: '🧑',
+            totalSpent: 1240,
+            giftsCount: 5,
+            rank: '💎 МАГНАТ',
+            pinnedGift: null
+        };
+
+        let rating = [
+            { name: 'ALEX', avatar: '👑', stars: 3240 },
+            { name: 'MARIA', avatar: '👩', stars: 2890 },
+            { name: 'DMITRY', avatar: '🦸', stars: 2100 },
+            { name: userData.name, avatar: userData.avatar, stars: userData.totalSpent, isCurrent: true },
+            { name: 'ELENA', avatar: '👩‍🎤', stars: 980 },
+            { name: 'ARTEM', avatar: '🐱', stars: 750 },
+            { name: 'SOFIA', avatar: '🦊', stars: 520 },
+        ];
+
+        function updateUI() {
+            document.getElementById('username').innerHTML = userData.name;
+            document.getElementById('avatarImage').innerHTML = userData.avatar;
+            document.getElementById('totalSpent').innerHTML = userData.totalSpent;
+            document.getElementById('giftsCount').innerHTML = userData.giftsCount;
+            
+            let rankText = '';
+            if (userData.totalSpent >= 2000) rankText = '👑 ЛЕГЕНДА';
+            else if (userData.totalSpent >= 500) rankText = '💎 МАГНАТ';
+            else if (userData.totalSpent >= 100) rankText = '🥈 ДАРИТЕЛЬ';
+            else rankText = '🌱 НОВИЧОК';
+            document.getElementById('rankBadge').innerHTML = rankText;
+
+            const container = document.getElementById('pinnedGiftContainer');
+            if (userData.pinnedGift) {
+                container.innerHTML = `
+                    <div class="pinned-gift" onclick="selectGift()">
+                        <div class="gift-icon">${userData.pinnedGift.icon}</div>
+                        <div class="gift-info">
+                            <div class="gift-name">${userData.pinnedGift.name}</div>
+                            <div class="gift-price">⭐ ${userData.pinnedGift.price} STARS</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<div class="gift-empty" onclick="selectGift()">✨ НАЖМИ, ЧТОБЫ ПРИКРЕПИТЬ ✨</div>`;
+            }
+            updateRating();
+        }
+
+        function updateRating() {
+            const userInRating = rating.find(r => r.name === userData.name);
+            if (userInRating) {
+                userInRating.avatar = userData.avatar;
+                userInRating.stars = userData.totalSpent;
+            } else {
+                rating.push({ name: userData.name, avatar: userData.avatar, stars: userData.totalSpent, isCurrent: true });
+            }
+            
+            const sorted = [...rating].sort((a, b) => b.stars - a.stars);
+            const container = document.getElementById('ratingList');
+            container.innerHTML = sorted.slice(0, 10).map((user, i) => `
+                <div class="rating-item" style="${user.name === userData.name ? 'background: linear-gradient(135deg, rgba(94,114,228,0.2), rgba(118,75,162,0.2)); border: 1px solid rgba(94,114,228,0.3);' : ''}">
+                    <div class="rating-place">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1)}</div>
+                    <div class="rating-avatar">${user.avatar}</div>
+                    <div class="rating-name">${user.name} ${user.name === userData.name ? '✨' : ''}</div>
+                    <div class="rating-stars">${user.stars}⭐</div>
+                </div>
+            `).join('');
+        }
+
+        function openAvatarSelector() {
+            const grid = document.getElementById('avatarsGrid');
+            grid.innerHTML = AVATARS.map(avatar => `
+                <div class="avatar-option ${userData.avatar === avatar ? 'selected' : ''}" onclick="selectAvatar('${avatar}')">
+                    ${avatar}
+                </div>
+            `).join('');
+            document.getElementById('avatarModal').style.display = 'flex';
+        }
+
+        function selectAvatar(avatar) {
+            userData.avatar = avatar;
+            updateUI();
+            closeAvatarModal();
+            tg.HapticFeedback?.impactOccurred('light');
+        }
+
+        function closeAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'none';
+        }
+
+        function selectGift() {
+            tg.sendData(JSON.stringify({ action: 'select_gift', user_id: userData.id }));
+            
+            const demoGifts = [
+                { icon: '💎', name: 'Уникальный алмаз', price: 1200 },
+                { icon: '👑', name: 'Корона легенды', price: 800 },
+                { icon: '⭐', name: 'Золотая звезда', price: 500 },
+                { icon: '🐉', name: 'Драконье пламя', price: 1500 },
+                { icon: '🦄', name: 'Единорог', price: 2000 }
+            ];
+            const randomGift = demoGifts[Math.floor(Math.random() * demoGifts.length)];
+            userData.pinnedGift = randomGift;
+            updateUI();
+            tg.HapticFeedback?.impactOccurred('medium');
+        }
+
+        updateUI();
+
+        document.getElementById('avatarModal').onclick = (e) => {
+            if (e.target === document.getElementById('avatarModal')) closeAvatarModal();
+        };
+    </script>
+</body>
+</html>
