@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Style Stars — 3D аватар</title>
+    <title>Style Stars — Твой стиль</title>
     <style>
         * {
             margin: 0;
@@ -13,252 +13,538 @@
 
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            min-height: 100vh;
             background: var(--tg-theme-bg-color, #0f0c29);
+            padding: 20px;
         }
 
-        /* Liquid Glass панели */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
+        /* Адаптация под тему Telegram */
+        :root {
+            --bg: var(--tg-theme-bg-color, #0f0c29);
+            --text: var(--tg-theme-text-color, #ffffff);
+            --hint: var(--tg-theme-hint-color, rgba(255,255,255,0.6));
+            --button: var(--tg-theme-button-color, #667eea);
+        }
+
+        /* Liquid Glass эффект */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
 
-        .app-container {
+        .glass-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Шапка */
+        .header {
             display: flex;
-            height: 100vh;
-            width: 100vw;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 24px;
         }
 
-        /* 3D контейнер */
-        #canvas-container {
-            flex: 2;
-            position: relative;
-        }
-
-        /* Боковая панель */
-        .sidebar {
-            width: 320px;
-            margin: 20px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-        }
-
-        .profile-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 16px;
-            text-align: center;
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .rank-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
-            padding: 6px 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 8px 20px;
             border-radius: 40px;
             font-size: 14px;
             font-weight: bold;
-            color: #1a1a2e;
-            margin-top: 8px;
+            color: white;
         }
 
+        /* Основной профиль */
+        .profile-section {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-card {
+            flex: 1;
+            min-width: 280px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .avatar-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 80px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .avatar-image:hover {
+            transform: scale(1.02);
+        }
+
+        .user-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd966;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--hint);
+        }
+
+        /* Закреплённый подарок */
+        .gift-card {
+            flex: 1;
+            min-width: 280px;
+            padding: 24px;
+        }
+
+        .gift-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .pinned-gift {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pinned-gift:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .gift-icon {
+            font-size: 48px;
+        }
+
+        .gift-info {
+            flex: 1;
+        }
+
+        .gift-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .gift-price {
+            color: #ffd966;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .gift-empty {
+            text-align: center;
+            padding: 32px;
+            color: var(--hint);
+        }
+
+        /* Выбор аватарок */
+        .avatars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .avatar-option {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.2);
+        }
+
+        .avatar-option.selected {
+            border-color: #ffd966;
+            background: rgba(255,217,102,0.2);
+        }
+
+        /* Рейтинг */
+        .rating-section {
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        .rating-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rating-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .rating-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .rating-place {
+            width: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd966;
+        }
+
+        .rating-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .rating-name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .rating-stars {
+            color: #ffd966;
+            font-weight: bold;
+        }
+
+        /* Кнопки */
         .btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 24px;
             border-radius: 40px;
-            color: var(--tg-theme-text-color, white);
+            color: white;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
+            width: 100%;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+        .btn-secondary {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
-        h3 {
-            color: var(--tg-theme-text-color, white);
-            margin-bottom: 12px;
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
         }
 
-        .text-muted {
-            color: var(--tg-theme-hint-color, rgba(255,255,255,0.6));
-            font-size: 12px;
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
 
+        .modal-content {
+            max-width: 400px;
+            width: 90%;
+            padding: 24px;
+            border-radius: 32px;
+        }
+
+        /* Адаптация */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 280px;
-                margin: 12px;
+            body {
+                padding: 12px;
+            }
+            .profile-section {
+                flex-direction: column;
+            }
+            .avatar-image {
+                width: 140px;
+                height: 140px;
+                font-size: 60px;
+            }
+            .user-name {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div id="canvas-container"></div>
-        <div class="sidebar">
-            <div class="profile-card">
-                <div style="font-size: 48px;">👤</div>
-                <h3 id="username">Загрузка...</h3>
-                <div class="rank-badge" id="rank">🏆 Загрузка...</div>
-                <div class="text-muted" style="margin-top: 8px;" id="clan"></div>
-            </div>
+    <div class="container">
+        <!-- Шапка -->
+        <div class="header glass-card">
+            <div class="logo">✨ Style Stars</div>
+            <div class="rank-badge" id="rankBadge">🌱 Новичок</div>
+        </div>
 
-            <div class="glass-panel" style="padding: 16px;">
-                <h3>🎁 Закреплённый подарок</h3>
-                <div id="pinned-gift" style="display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 12px;">
-                    <div style="font-size: 40px;">❓</div>
-                    <div>
-                        <div><strong>Нет подарка</strong></div>
-                        <div class="text-muted">Выбери в /gifts</div>
+        <!-- Профиль -->
+        <div class="profile-section">
+            <div class="avatar-card glass-card">
+                <div class="avatar-image" id="avatarImage" onclick="openAvatarSelector()">
+                    🧑
+                </div>
+                <div class="user-name" id="username">Загрузка...</div>
+                <div class="user-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalSpent">0</div>
+                        <div class="stat-label">⭐ звёзд</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="giftsCount">0</div>
+                        <div class="stat-label">🎁 подарков</div>
                     </div>
                 </div>
-                <div class="btn" id="select-gift-btn" style="margin-top: 12px;">📌 Выбрать подарок</div>
+                <button class="btn btn-secondary" style="margin-top: 20px;" onclick="openAvatarSelector()">
+                    🖼️ Сменить аватар
+                </button>
             </div>
 
-            <div class="glass-panel" style="padding: 16px;">
-                <h3>👕 Мой гардероб</h3>
-                <div id="inventory" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <span style="background: rgba(255,215,0,0.2); padding: 6px 12px; border-radius: 20px;">👑 Корона</span>
-                    <span style="background: rgba(255,215,0,0.2); padding: 6px 12px; border-radius: 20px;">🕶️ Очки</span>
+            <div class="gift-card glass-card">
+                <div class="gift-title">📌 Закреплённый подарок</div>
+                <div id="pinnedGiftContainer">
+                    <div class="gift-empty" onclick="selectGift()">
+                        🎁 Нажми, чтобы прикрепить подарок
+                    </div>
                 </div>
-                <div class="btn btn-primary" style="margin-top: 12px;">➕ Надеть предмет</div>
+                <button class="btn btn-secondary" style="margin-top: 16px;" onclick="selectGift()">
+                    🎁 Выбрать подарок
+                </button>
+            </div>
+        </div>
+
+        <!-- Рейтинг -->
+        <div class="rating-section glass-card">
+            <div class="rating-title">🏆 Топ игроков</div>
+            <div class="rating-list" id="ratingList">
+                <div class="rating-item">
+                    <div class="rating-place">1</div>
+                    <div class="rating-avatar">👑</div>
+                    <div class="rating-name">Загрузка...</div>
+                    <div class="rating-stars">0⭐</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
-            }
-        }
-    </script>
+    <!-- Модальное окно выбора аватара -->
+    <div id="avatarModal" class="modal">
+        <div class="modal-content glass-card">
+            <div class="gift-title" style="margin-bottom: 16px;">Выбери аватар</div>
+            <div class="avatars-grid" id="avatarsGrid"></div>
+            <button class="btn btn-secondary" style="margin-top: 20px;" onclick="closeAvatarModal()">Закрыть</button>
+        </div>
+    </div>
 
-    <script type="module">
-        import * as THREE from 'three';
-
-        // --- Telegram WebApp ---
-        let tg = window.Telegram?.WebApp || { initDataUnsafe: { user: { id: null } }, close: () => {}, expand: () => {}, themeParams: {} };
-        tg.expand();
-        
-        const userId = tg.initDataUnsafe?.user?.id;
-        document.getElementById('username').textContent = tg.initDataUnsafe?.user?.first_name || 'Стиляга';
-        
-        // --- 3D сцена ---
-        const container = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        scene.background = null;
-        
-        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(2, 1.5, 3.5);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setClearColor(0x000000, 0);
-        container.appendChild(renderer.domElement);
-        
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0x404060);
-        scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xffeedd, 1);
-        mainLight.position.set(3, 5, 2);
-        scene.add(mainLight);
-        
-        // Стикмен
-        const stickman = new THREE.Group();
-        
-        const bodyGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.85, 24);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x5a9eff });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 0.45;
-        stickman.add(body);
-        
-        const headGeo = new THREE.SphereGeometry(0.38, 48, 48);
-        const headMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
-        const head = new THREE.Mesh(headGeo, headMat);
-        head.position.y = 0.95;
-        stickman.add(head);
-        
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.09, 32, 32), eyeMat);
-        leftEye.position.set(-0.13, 1.08, 0.36);
-        const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.09, 32, 32), eyeMat);
-        rightEye.position.set(0.13, 1.08, 0.36);
-        stickman.add(leftEye, rightEye);
-        
-        const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
-        const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.05, 32, 32), pupilMat);
-        leftPupil.position.set(-0.13, 1.06, 0.44);
-        const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.05, 32, 32), pupilMat);
-        rightPupil.position.set(0.13, 1.06, 0.44);
-        stickman.add(leftPupil, rightPupil);
-        
-        const crownGeo = new THREE.CylinderGeometry(0.35, 0.45, 0.2, 8);
-        const crownMat = new THREE.MeshStandardMaterial({ color: 0xffaa44, metalness: 0.8 });
-        const crown = new THREE.Mesh(crownGeo, crownMat);
-        crown.position.y = 1.22;
-        stickman.add(crown);
-        
-        scene.add(stickman);
-        
-        // Подставка
-        const platformGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.08, 32);
-        const platformMat = new THREE.MeshStandardMaterial({ color: 0xaa88ff, metalness: 0.5 });
-        const platform = new THREE.Mesh(platformGeo, platformMat);
-        platform.position.y = -0.25;
-        scene.add(platform);
-        
-        // Слежение за курсором
-        let mouseX = 0, mouseY = 0;
-        window.addEventListener('mousemove', (event) => {
-            const rect = container.getBoundingClientRect();
-            const x = (event.clientX - rect.left) / rect.width;
-            const y = (event.clientY - rect.top) / rect.height;
-            mouseX = (x * 2 - 1) * 0.8;
-            mouseY = (y * 2 - 1) * 0.4;
-        });
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            head.rotation.y += (mouseX - head.rotation.y) * 0.1;
-            head.rotation.x += (-mouseY - head.rotation.x) * 0.08;
-            renderer.render(scene, camera);
-        }
-        animate();
-        
-        window.addEventListener('resize', () => {
-            const w = container.clientWidth, h = container.clientHeight;
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-            renderer.setSize(w, h);
-        });
-        
-        // Кнопка выбора подарка
-        document.getElementById('select-gift-btn').onclick = () => {
-            tg.sendData(JSON.stringify({ action: 'select_gift', user_id: userId }));
+    <script>
+        // Telegram WebApp
+        let tg = window.Telegram?.WebApp || { 
+            initDataUnsafe: { user: { id: null, first_name: 'Гость' } },
+            close: () => {}, 
+            expand: () => {}, 
+            sendData: () => {},
+            HapticFeedback: { impactOccurred: () => {} }
         };
-        
-        // Получение данных от бота
-        tg.onEvent('message', (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'gifts') {
-                // обновить список подарков
+        tg.expand();
+
+        // Данные пользователя
+        let currentUser = {
+            id: tg.initDataUnsafe?.user?.id || 123,
+            name: tg.initDataUnsafe?.user?.first_name || 'Стиляга',
+            avatar: '🧑',
+            totalSpent: 1240,
+            giftsCount: 5,
+            rank: '💎 Магнат',
+            pinnedGift: null
+        };
+
+        // Доступные аватары
+        const avatars = ['🧑', '👩', '🦸', '🦹', '🐱', '🐶', '🦊', '🐼', '👨‍🎤', '👩‍🎤', '👑', '⭐', '🔥', '💎'];
+
+        // Рейтинг (пример)
+        let rating = [
+            { name: 'Алексей', avatar: '👑', stars: 3240 },
+            { name: 'Мария', avatar: '👩', stars: 2890 },
+            { name: 'Дмитрий', avatar: '🦸', stars: 2100 },
+            { name: currentUser.name, avatar: currentUser.avatar, stars: currentUser.totalSpent, isCurrent: true },
+            { name: 'Елена', avatar: '👩‍🎤', stars: 980 },
+        ];
+
+        // Обновление интерфейса
+        function updateUI() {
+            document.getElementById('username').innerHTML = currentUser.name;
+            document.getElementById('avatarImage').innerHTML = currentUser.avatar;
+            document.getElementById('totalSpent').innerHTML = currentUser.totalSpent;
+            document.getElementById('giftsCount').innerHTML = currentUser.giftsCount;
+            document.getElementById('rankBadge').innerHTML = currentUser.rank;
+
+            // Обновляем закреплённый подарок
+            const container = document.getElementById('pinnedGiftContainer');
+            if (currentUser.pinnedGift) {
+                container.innerHTML = `
+                    <div class="pinned-gift" onclick="selectGift()">
+                        <div class="gift-icon">${currentUser.pinnedGift.icon}</div>
+                        <div class="gift-info">
+                            <div class="gift-name">${currentUser.pinnedGift.name}</div>
+                            <div class="gift-price">⭐ ${currentUser.pinnedGift.price} звёзд</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="gift-empty" onclick="selectGift()">
+                        🎁 Нажми, чтобы прикрепить подарок
+                    </div>
+                `;
             }
-        });
+
+            // Обновляем рейтинг
+            updateRating();
+        }
+
+        function updateRating() {
+            const sorted = [...rating].sort((a, b) => b.stars - a.stars);
+            const container = document.getElementById('ratingList');
+            container.innerHTML = sorted.slice(0, 10).map((user, i) => `
+                <div class="rating-item" style="${user.isCurrent ? 'background: rgba(255,217,102,0.15); border: 1px solid rgba(255,217,102,0.3);' : ''}">
+                    <div class="rating-place">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</div>
+                    <div class="rating-avatar">${user.avatar}</div>
+                    <div class="rating-name">${user.name} ${user.isCurrent ? '(вы)' : ''}</div>
+                    <div class="rating-stars">${user.stars}⭐</div>
+                </div>
+            `).join('');
+        }
+
+        // Выбор аватара
+        function openAvatarSelector() {
+            const grid = document.getElementById('avatarsGrid');
+            grid.innerHTML = avatars.map(avatar => `
+                <div class="avatar-option ${currentUser.avatar === avatar ? 'selected' : ''}" onclick="selectAvatar('${avatar}')">
+                    ${avatar}
+                </div>
+            `).join('');
+            document.getElementById('avatarModal').style.display = 'flex';
+        }
+
+        function selectAvatar(avatar) {
+            currentUser.avatar = avatar;
+            // Обновляем в рейтинге
+            const userInRating = rating.find(r => r.name === currentUser.name);
+            if (userInRating) userInRating.avatar = avatar;
+            updateUI();
+            closeAvatarModal();
+            tg.HapticFeedback?.impactOccurred('light');
+        }
+
+        function closeAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'none';
+        }
+
+        // Выбор подарка
+        function selectGift() {
+            // Здесь будет запрос к боту за списком подарков
+            tg.sendData(JSON.stringify({ action: 'select_gift', user_id: currentUser.id }));
+            
+            // Временная демо-функция (потом заменим на реальную)
+            const demoGift = {
+                icon: '💎',
+                name: 'Уникальный алмаз',
+                price: 1200
+            };
+            currentUser.pinnedGift = demoGift;
+            updateUI();
+            tg.HapticFeedback?.impactOccurred('medium');
+        }
+
+        // Инициализация
+        document.getElementById('username').innerHTML = currentUser.name;
+        updateUI();
+
+        // Закрытие модалки по клику вне
+        document.getElementById('avatarModal').onclick = (e) => {
+            if (e.target === document.getElementById('avatarModal')) closeAvatarModal();
+        };
     </script>
 </body>
 </html>
